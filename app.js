@@ -1,20 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const { static } = require("express");
+const date = require(__dirname+"/date.js");
 
-const PORT = 3000;
 const app = express();
-const today = new Date();
-let quickList = ["Do something", "Do something else"];
-let persList = [];
-
-let options = {
-  month: "long",
-  day: "numeric",
-  weekday: "short",
-};
-let date = today.toLocaleDateString("en-US", options); 
+const PORT = 3000;
+const quickList = ["Do something", "Do something else"];
+const persList = [];
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -24,7 +16,7 @@ app.set("view engine", "ejs");
 app.get("/", (req, res) => {
   let listTitle = "Quick List";
   res.render("list", {
-    date: date,
+    date: date.getDate(),
     listTitle: listTitle,
     list: quickList
   });
@@ -43,7 +35,7 @@ app.post("/", (req, res) => {
 app.get("/Personal", (req, res) => {
   let listTitle = "Personal List";
   res.render("list", {
-    date: date,
+    date: date.getDate(),
     listTitle: listTitle,
     list: persList
   });
