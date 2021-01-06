@@ -14,6 +14,7 @@ let options = {
   day: "numeric",
   weekday: "short",
 };
+let date = today.toLocaleDateString("en-US", options); 
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -21,9 +22,9 @@ app.set("view engine", "ejs");
 
 // ROOT ROUTE
 app.get("/", (req, res) => {
-  let date = today.toLocaleDateString("en-US", options); 
   let listTitle = "Quick List";
   res.render("list", {
+    date: date,
     listTitle: listTitle,
     list: quickList
   });
@@ -42,6 +43,7 @@ app.post("/", (req, res) => {
 app.get("/Personal", (req, res) => {
   let listTitle = "Personal List";
   res.render("list", {
+    date: date,
     listTitle: listTitle,
     list: persList
   });
