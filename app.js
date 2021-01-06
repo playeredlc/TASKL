@@ -6,30 +6,45 @@ const { static } = require("express");
 const PORT = 3000;
 const app = express();
 const today = new Date();
-var items = ["Do something", "Do something else"];
+let quickList = ["Do something", "Do something else"];
+let persList = [];
 
-var options = {
+let options = {
   month: "long",
   day: "numeric",
   weekday: "short",
-  // year: "numeric",
 };
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
+// ROOT ROUTE
 app.get("/", (req, res) => {
-  var date = today.toLocaleDateString("en-US", options); 
+  let date = today.toLocaleDateString("en-US", options); 
+  let listTitle = "Quick List";
   res.render("list", {
-    date: date,
-    item: items
+    listTitle: listTitle,
+    list: quickList
   });
 });
-
 app.post("/", (req, res) => {
-  items.push(req.body.newItem);
-  res.redirect("/");
+  if(req.body.list === "Personal"){
+    persList.push(req.body.newItem);
+    res.redirect("/Personal");
+  }else{
+    quickList.push(req.body.newItem);
+    res.redirect("/");
+  }
+});
+
+// PERSONAL LIST ROUTE
+app.get("/Personal", (req, res) => {
+  let listTitle = "Personal List";
+  res.render("list", {
+    listTitle: listTitle,
+    list: persList
+  });
 });
 
 app.listen(PORT, () => {
