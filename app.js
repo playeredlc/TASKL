@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const { static } = require("express");
 
 const PORT = 3000;
 const app = express();
@@ -11,9 +12,10 @@ var options = {
   month: "long",
   day: "numeric",
   weekday: "short",
-  year: "numeric",
+  // year: "numeric",
 };
 
+app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
