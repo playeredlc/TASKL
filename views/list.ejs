@@ -1,30 +1,19 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Taskl</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;400;700;900&family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+<%- include("header"); -%>
 
-  </head>
-  <body>
-    <div id="heading" class="box">
-      <h1> <%= date %> </h1>      
-    </div>
-    <div class="box">
-      <% for(var i=0; i<item.length;i++){ %>
-        <div class="item">
-          <input type="checkbox">
-          <p> <%= item[i] %> </p>
-        </div>
-        <% } %>
-        <form class ="item" action="/" method="POST">
-          <input type="text" name="newItem" placeholder="New item" autocomplete="off">
-          <button type="submit" name="submitBttn">+</button>
-        </form>
-    </div>
-      
-  </body>
+  <div id="heading" class="box">
+    <h1> <%= date %> </h1>      
+  </div>
+  <div class="box">
+    <% for(var i=0; i<item.length;i++){ %>
+      <div class="item">
+        <input type="checkbox">
+        <p> <%= item[i] %> </p>
+      </div>
+      <% } %>
+      <form class ="item" action="/" method="POST">
+        <input type="text" name="newItem" placeholder="New item" autocomplete="off">
+        <button type="submit" name="submitBttn">+</button>
+      </form>
+  </div>
 
-</html>
+<%- include("footer"); -%>
