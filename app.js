@@ -30,13 +30,13 @@ const itemSchema = new mongoose.Schema({
 const Item = mongoose.model('Item', itemSchema);
 
 //DEFAULT DATA
-defaultData.push(new Item({task: 'Welcome to your TASKList', list: 'Quick List'}));
-defaultData.push(new Item({task: 'Hit the + button to add a new task', list: 'Quick List'}));
-defaultData.push(new Item({task: 'Use the checkbox to discard accomplished tasks.', list: 'Quick List'}));
+defaultData.push(new Item({task: 'Welcome to your TASKList', list: 'Quick list'}));
+defaultData.push(new Item({task: 'Hit the + button to add a new task', list: 'Quick list'}));
+defaultData.push(new Item({task: 'Use the checkbox to discard accomplished tasks.', list: 'Quick list'}));
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
-  let listTitle = 'Quick List';
+  let listTitle = 'Quick list';
   Item.find({list: listTitle}, (err, items) => {
     if(items.length === 0){
       //insert default
