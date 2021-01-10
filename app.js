@@ -2,11 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const _ = require('lodash');
 const date = require(__dirname+'/date.js');
 
 const app = express();
 const PORT = 3000;
-const quickList = [];
 const persList = [];
 const defaultData = [];
 
@@ -16,43 +16,35 @@ app.set('view engine', 'ejs');
 
 //CONNECT TO DB
 mongoose.connect('mongodb://localhost:27017/tasklDB', {useNewUrlParser: true, useUnifiedTopology: true});
-
 const itemSchema = new mongoose.Schema({
   //(docs) If you want to add additional keys later, use the Schema#add method.
-  task: String,
-  active: Boolean
+  task: {
+    type: String, 
+    required: true
+  },
+  list: {
+    type: String, 
+    required: true
+  }
 });
 const Item = mongoose.model('Item', itemSchema);
 
 //DEFAULT DATA
-defaultData.push(new Item({
-  task: 'Welcome to your TASKList',
-  active: true
-}));
-defaultData.push(new Item({
-  task: 'Hit the + button to add a new task',
-  active: true
-}));
-defaultData.push(new Item({
-  task: 'Use the checkbox to discard accomplished tasks.',
-  active: true
-}));
+defaultData.push(new Item({task: 'Welcome to your TASKList', list: 'Quick List'}));
+defaultData.push(new Item({task: 'Hit the + button to add a new task', list: 'Quick List'}));
+defaultData.push(new Item({task: 'Use the checkbox to discard accomplished tasks.', list: 'Quick List'}));
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
   let listTitle = 'Quick List';
-  Item.find({}, (err, items) => {
-    console.log(items.length);
+  Item.find({list: listTitle}, (err, items) => {
     if(items.length === 0){
       //insert default
       Item.insertMany(defaultData, (err) => {
-        if(err){
-          console.log(err);
-        }else{
-          console.log('Succesfully inserted default values.');
+        if(!err){
+          res.redirect('/');
         }
       });
-      res.redirect('/');
     }else{
       res.render('list', {
         date: date.getDate(),
@@ -62,39 +54,37 @@ app.get('/', (req, res) => {
     }
   });
 });
-app.post('/', (req, res) => {
-  if(req.body.list === 'Personal'){
-    persList.push(req.body.newItem);
-    res.redirect('/Personal');
-  }else{
-    const item = new Item({
-      task: req.body.newItem,
-      active: true
-    });
-    item.save();
-    res.redirect('/');
-  }
-});
 
-app.post('/delete', (req, res) => {
-  console.log(req.body);
-  Item.deleteOne({_id: req.body.checkbox}, (err) => {
-    if(err){
-      console.log(err);
-    }else{
-      console.log('Succesfully deleted.');
-      res.redirect('/');
+//DYNAMIC ROUTING FOR OTHER LISTS.
+app.get('/:listName', (req, res) => {
+  let listTitle = _.capitalize(req.params.listName);
+  Item.find({list: listTitle}, (err, items) => {
+    if(!err){
+      res.render('list',{
+        date: date.getDate(),
+        listTitle: listTitle,
+        list: items
+      });      
     }
-  })
+  });
 });
 
-// PERSONAL LIST ROUTE (CHANGE TO DYNAMIC ROUTING??)
-app.get('/Personal', (req, res) => {
-  let listTitle = 'Personal List';
-  res.render('list', {
-    date: date.getDate(),
-    listTitle: listTitle,
-    list: persList
+//HANDLE NEW TASKS BEING ADDED.
+app.post('/', (req, res) => {
+  const item = new Item({
+    task: req.body.newItem,
+    list: req.body.list
+  });
+  item.save();
+  res.redirect('/'+req.body.list);
+});
+
+//HANDLE DELETIONS
+app.post('/delete', (req, res) => {
+  Item.findByIdAndDelete(req.body.checkbox, (err) => {
+    if(!err){
+      res.redirect('/'+req.body.listName);
+    }  
   });
 });
 
