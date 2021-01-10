@@ -7,8 +7,10 @@
   <div class="box">
     <% list.forEach((item => { %>
       <div class="item">
-        <input type="checkbox">
-        <p> <%= item.task %> </p>
+        <form action="/delete" method="POST">
+          <input type="checkbox" name="checkbox" value="<%= item._id %>" onChange="this.form.submit()">
+        </form>
+          <p> <%= item.task %> </p>
       </div>
     <% })); %>
 

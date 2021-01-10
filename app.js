@@ -62,15 +62,30 @@ app.get('/', (req, res) => {
     }
   });
 });
-
 app.post('/', (req, res) => {
   if(req.body.list === 'Personal'){
     persList.push(req.body.newItem);
     res.redirect('/Personal');
   }else{
-    quickList.push(req.body.newItem);
+    const item = new Item({
+      task: req.body.newItem,
+      active: true
+    });
+    item.save();
     res.redirect('/');
   }
+});
+
+app.post('/delete', (req, res) => {
+  console.log(req.body);
+  Item.deleteOne({_id: req.body.checkbox}, (err) => {
+    if(err){
+      console.log(err);
+    }else{
+      console.log('Succesfully deleted.');
+      res.redirect('/');
+    }
+  })
 });
 
 // PERSONAL LIST ROUTE (CHANGE TO DYNAMIC ROUTING??)
