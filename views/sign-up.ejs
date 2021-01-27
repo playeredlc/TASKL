@@ -1,0 +1,17 @@
+<%- include("header"); %>
+
+<main class="form-signin">
+  <form>
+    <h1 class="h3 mb-3 fw-normal">Sign Up</h1>
+    <label for="inputEmail" class="visually-hidden">Email address</label>
+    <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+    <label for="inputPassword" class="visually-hidden">Password</label>
+    <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+    <button class="w-100 btn btn-lg btn-outline-light" type="submit">Sign Up</button>
+    <p style="text-align: center; font-size: 0.7rem;">OR</p>
+    <a href="auth/google" class="w-100 btn btn-lg btn-block btn-social btn-google" type="submit" role="button"><i class="fab fa-google"></i>Sign up with Google</a>
+    <p class="registered text-muted"->Already registered? <a class="sign-redirect" href="/sign-in">Log In</a></p>
+  </form>
+</main>
+
+<%- include("footer"); %>

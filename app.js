@@ -38,12 +38,11 @@ app.get('/', (req, res) => {
   
   User.findOne({username: 'playeredlc'}, (err, user) => {
     if(!err){
-      const foundUser = user;
       res.render('list', {
         date: date.getDate(),
-        listTitle: foundUser.lists[0].name,
-        list: foundUser.lists[0],
-        userID: foundUser._id
+        listTitle: user.lists[0].name,
+        list: user.lists[0],
+        userID: user._id
       });
     }else{
       console.log(err);
@@ -52,6 +51,50 @@ app.get('/', (req, res) => {
 
 });
 
+//HANDLE NEW TASKS BEING ADDED.
+app.post('/', (req, res) => {
+  const newItem = req.body.newItem;
+  const listID = req.body.listID;
+  const userID = req.body.userID;
+
+  User.findById(userID, (err, user) => {
+    if(!err){
+      user.lists.id(listID).items.push(newItem);
+      user.save(() => {
+        res.redirect('/');     
+      });
+    }else{
+      console.log(err);
+    }
+  });
+  
+});
+
+//HANDLE DELETIONS
+app.post('/delete', (req, res) => {
+  const itemIndex = req.body.itemIndex;
+  const listID = req.body.listID;
+  const userID = req.body.userID;
+
+  User.findById(userID, (err, user) =>{
+    user.lists.id(listID).items.splice(itemIndex, 1);
+    user.save(()=>{
+      res.redirect('/');
+    });
+  });
+
+});
+
+app.get('/sign-in', (req, res) => {
+  res.render('sign-in', {
+    date: date.getDate()
+  });
+});
+app.get('/sign-up', (req, res) => {
+  res.render('sign-up', {
+    date: date.getDate()
+  })
+});
 //DYNAMIC ROUTING FOR OTHER LISTS.
 // app.get('/:listName', (req, res) => {
   //   let listTitle = _.capitalize(req.params.listName);
@@ -66,39 +109,6 @@ app.get('/', (req, res) => {
   //   });
   // });
   
-  //HANDLE NEW TASKS BEING ADDED.
-  app.post('/', (req, res) => {
-    const newItem = req.body.newItem;
-    const listID = req.body.listID;
-    const userID = req.body.userID;
-
-    User.findById(userID, (err, user) => {
-      if(!err){
-        user.lists.id(listID).items.push(newItem);
-        user.save(() => {
-          res.redirect('/');     
-        });
-      }else{
-        console.log(err);
-      }
-    });
-    
-  });
-  
-  //HANDLE DELETIONS
-  app.post('/delete', (req, res) => {
-    const itemIndex = req.body.itemIndex;
-    const listID = req.body.listID;
-    const userID = req.body.userID;
-
-    User.findById(userID, (err, user) =>{
-      user.lists.id(listID).items.splice(itemIndex, 1);
-      user.save(()=>{
-        res.redirect('/');
-      });
-    });
-
-  });
 
 if(port == null || port == ''){
   port=3000;

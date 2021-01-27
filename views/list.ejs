@@ -1,6 +1,6 @@
 <%- include("header"); -%>
   
-  <div id="heading" class="box">
+  <div id="title" class="box">
     <h1> <%= listTitle %> </h1>      
   </div>
   
@@ -19,7 +19,7 @@
     <form class ="item" action="/" method="POST">
       <input type="text" name="newItem" placeholder="New item" autocomplete="off">
       <input type="hidden" name="userID" value="<%= userID %>"/>
-      <button type="submit" name="listID" value="<%= list._id %>">+</button>
+      <button id="button-add" type="submit" name="listID" value="<%= list._id %>">+</button>
     </form>
   </div>
 

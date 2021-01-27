@@ -4,52 +4,15 @@ html {
   min-height: 1000px;
   font-family: 'Montserrat', sans-serif;
 }
-
 body{
   background: transparent;
 }
-
 h1 {
   color: #fafafa;
   padding: 10px;
   font-family: 'Old Standard TT', serif;
   font-size: 2rem;
   font-weight: 100;
-}
-
-.box {
-  max-width: 400px;
-  margin: 50px auto;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
-  /* background-color: #637D98; */
-  background-color: #334E68;
-}
-
-#heading {
-  background-color: #102A43;
-  text-align: center;
-}
-
-.item {
-  min-height: 70px;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #323232;
-}
-
-.item:last-child {
-  border-bottom: 0;
-}
-
-input:checked+p {
-  text-decoration: line-through;
-  text-decoration-color: #102A43;
-}
-
-input[type="checkbox"] {
-  margin: 20px;
 }
 p {
   margin: 0;
@@ -59,12 +22,9 @@ p {
   color: #fff;
 }
 
-form.item {
-  text-align: center;
-  margin-left: 20px;
-}
 
-button {
+/* LISTS STYLE */
+#button-add {
   min-height: 50px;
   width: 50px;
   border-radius: 50%;
@@ -74,9 +34,32 @@ button {
   font-size: 30px;
   padding: 6px;
   border-width: 0;
-  
+}
+#title {
+  background-color: #102A43;
+  text-align: center;
+}
+.box {
+  max-width: 400px;
+  margin: 50px auto;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
+  /* background-color: #637D98; */
+  background-color: #334E68;
+}
+form.item {
+  text-align: center;
+  margin-left: 20px;
 }
 
+input:checked+p {
+  text-decoration: line-through;
+  text-decoration-color: #102A43;
+}
+input[type="checkbox"] {
+  margin: 20px;
+}
 input[type="text"] {
   text-align: center;
   height: 60px;
@@ -89,40 +72,87 @@ input[type="text"] {
   color: #B1B1B1;
   font-family: 'Montserrat', sans-serif;
 }
-
 input[type="text"]:focus {
   outline: none;
   box-shadow: inset 0 -3px 0 0 #102A43;
 }
-
+.item {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #323232;
+}
+.item:last-child {
+  border-bottom: 0;
+}
 ::placeholder {
   color: #B1B1B1;
   opacity: 1;
   font-family: 'Montserrat', sans-serif;
   font-weight: 100;
 }
-
 ::selection{
   color: black;
   background: #627D98;
 }
 
-footer {
-  color: white;
-  color: rgba(0, 0, 0, 0.5);
-  text-align: center;
-}
-
+/* HEADER */
 #brand {
   font-size: 3rem;
   font-weight: 900;
   text-decoration: none;
   color: aqua;
 }
-
 #date {
   text-align: right;
 }
 table{
   width: 100%;
+}
+
+/* FOOTER */
+footer {
+  color: white;
+  color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+/* SIGN PAGE */
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+  font-family: 'Montserrat', sans-serif;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background-color:#121212;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background-color:#121212;
+}
+.registered {
+  padding: 5% 0;
+  font-size: 1rem;
+}
+.sign-redirect, .sign-redirect:link, .sign-redirect:visited, .sign-redirect:active{
+  text-decoration: none;
+  font-weight: 400;
+  color: grey
 }
