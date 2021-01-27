@@ -69,14 +69,15 @@ app.get('/', (req, res) => {
   //HANDLE NEW TASKS BEING ADDED.
   app.post('/', (req, res) => {
     const newItem = req.body.newItem;
-    const listID = req.body.list;
+    const listID = req.body.listID;
     const userID = req.body.userID;
 
     User.findById(userID, (err, user) => {
       if(!err){
         user.lists.id(listID).items.push(newItem);
-        user.save();
-        res.redirect('/');     
+        user.save(() => {
+          res.redirect('/');     
+        });
       }else{
         console.log(err);
       }
@@ -84,14 +85,20 @@ app.get('/', (req, res) => {
     
   });
   
-  // //HANDLE DELETIONS
-// app.post('/delete', (req, res) => {
-//   Item.findByIdAndDelete(req.body.checkbox, (err) => {
-//     if(!err){
-//       res.redirect('/'+req.body.listName);
-//     }  
-//   });
-// });
+  //HANDLE DELETIONS
+  app.post('/delete', (req, res) => {
+    const itemIndex = req.body.itemIndex;
+    const listID = req.body.listID;
+    const userID = req.body.userID;
+
+    User.findById(userID, (err, user) =>{
+      user.lists.id(listID).items.splice(itemIndex, 1);
+      user.save(()=>{
+        res.redirect('/');
+      });
+    });
+
+  });
 
 if(port == null || port == ''){
   port=3000;
