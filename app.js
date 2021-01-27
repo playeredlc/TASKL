@@ -8,7 +8,7 @@ const date = require(__dirname+'/date.js');
 const app = express();
 let port = process.env.PORT;
 const persList = [];
-const defaultData = [];
+// const defaultData = [];
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -36,13 +36,14 @@ const defaultList = new List({
 // ROOT ROUTE
 app.get('/', (req, res) => {
   
-  User.find({username: 'playeredlc'}, (err, user) => {
+  User.findOne({username: 'playeredlc'}, (err, user) => {
     if(!err){
-      const foundUser = user[0];
+      const foundUser = user;
       res.render('list', {
         date: date.getDate(),
         listTitle: foundUser.lists[0].name,
-        list: foundUser.lists[0].items  
+        list: foundUser.lists[0],
+        userID: foundUser._id
       });
     }else{
       console.log(err);
@@ -53,29 +54,37 @@ app.get('/', (req, res) => {
 
 //DYNAMIC ROUTING FOR OTHER LISTS.
 // app.get('/:listName', (req, res) => {
-//   let listTitle = _.capitalize(req.params.listName);
+  //   let listTitle = _.capitalize(req.params.listName);
 //   Item.find({list: listTitle}, (err, items) => {
-//     if(!err){
+  //     if(!err){
 //       res.render('list',{
-//         date: date.getDate(),
-//         listTitle: listTitle,
-//         list: items
-//       });      
-//     }
-//   });
-// });
+  //         date: date.getDate(),
+  //         listTitle: listTitle,
+  //         list: items
+  //       });      
+  //     }
+  //   });
+  // });
+  
+  //HANDLE NEW TASKS BEING ADDED.
+  app.post('/', (req, res) => {
+    const newItem = req.body.newItem;
+    const listID = req.body.list;
+    const userID = req.body.userID;
 
-// //HANDLE NEW TASKS BEING ADDED.
-// app.post('/', (req, res) => {
-//   const item = new Item({
-//     task: req.body.newItem,
-//     list: req.body.list
-//   });
-//   item.save();
-//   res.redirect('/'+req.body.list);
-// });
-
-// //HANDLE DELETIONS
+    User.findById(userID, (err, user) => {
+      if(!err){
+        user.lists.id(listID).items.push(newItem);
+        user.save();
+        res.redirect('/');     
+      }else{
+        console.log(err);
+      }
+    });
+    
+  });
+  
+  // //HANDLE DELETIONS
 // app.post('/delete', (req, res) => {
 //   Item.findByIdAndDelete(req.body.checkbox, (err) => {
 //     if(!err){
