@@ -7,9 +7,9 @@ const date = require(__dirname+'/date.js');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
-const findOrCreate = require('mongoose-findorcreate');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
+const findOrCreate = require('mongoose-findorcreate');
 
 const app = express();
 let port = process.env.PORT;
@@ -72,17 +72,16 @@ passport.use(new LocalStrategy(
   }
 ));
 //google auth2.0:
-passport.use(new GoogleStrategy(
-  {
-    clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: 'http://localhost:3000/auth/google/home'
-  },
-  (accessToken, refreshToken, profile, cb) => {
-    User.findOrCreate({ googleId: profile.id }, (err, user) => {
-      return cb(err, user);
-    });
-  } 
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://localhost:3000/auth/google/home"
+},
+function(accessToken, refreshToken, profile, cb) {
+  User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    return cb(err, user);
+  });
+}
 ));
 
 const defaultList = new List({
@@ -170,6 +169,17 @@ app.post('/sign-up', (req, res) => {
     }
   });
 });
+
+app.get('/auth/google', 
+  passport.authenticate('google', {scope:['profile']})
+);
+
+app.get('/auth/google/home', 
+  passport.authenticate({failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
 
 //DYNAMIC ROUTING FOR OTHER LISTS.
 // app.get('/:listName', (req, res) => {
