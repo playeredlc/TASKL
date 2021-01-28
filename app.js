@@ -38,6 +38,8 @@ const listSchema = new mongoose.Schema({
 });
 const userSchema = new mongoose.Schema({
   username: String,
+  password: String,
+  googleId: String,
   lists: [listSchema]
 });
 userSchema.plugin(passportLocalMongoose);
@@ -45,6 +47,16 @@ userSchema.plugin(findOrCreate);
 
 const User = mongoose.model('User', userSchema);
 const List = mongoose.model('List', listSchema);
+
+//session
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
 
 //Set authentication strategies
 //local: username/password
@@ -54,9 +66,6 @@ passport.use(new LocalStrategy(
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
       }
       return done(null, user);
     });
@@ -133,8 +142,8 @@ app.post('/delete', (req, res) => {
 
 });
 
-app.get('/sign-in', (req, res) => {
-  res.render('sign-in', {
+app.get('/login', (req, res) => {
+  res.render('login', {
     date: date.getDate()
   });
 });
@@ -142,6 +151,24 @@ app.get('/sign-up', (req, res) => {
   res.render('sign-up', {
     date: date.getDate()
   })
+});
+
+app.post('/login',
+  passport.authenticate('local', {successRedirect: '/',
+  failureRedirect: 'login'
+  })
+);
+
+app.post('/sign-up', (req, res) => {
+  User.register({username: req.body.username}, req.body.password, (err, user) => {
+    if(!err){
+      passport.authenticate('local')(req, res, () => {
+        res.redirect('/');
+      });
+    }else{
+      console.log(err);
+    }
+  });
 });
 
 //DYNAMIC ROUTING FOR OTHER LISTS.
@@ -158,7 +185,6 @@ app.get('/sign-up', (req, res) => {
   //   });
   // });
   
-
 if(port == null || port == ''){
   port=3000;
 }
