@@ -22,9 +22,12 @@ p {
   color: #fff;
 }
 .lists {
-  width: 80%;
+  max-width: 400px;
+  width: 100%;
   background-color: rgba(50,50,50, 0.8);
   margin-top: 50px;
+  margin-right: auto;
+  margin-left: auto;
   border-radius: 5px;
   border: 2px solid;
 }
@@ -55,11 +58,10 @@ p {
 }
 .box {
   max-width: 400px;
-  margin: 50px 0;
+  margin: 50px auto;
   background: white;
   border-radius: 5px;
   box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
-  /* background-color: #637D98; */
   background-color: #334E68;
 }
 .dropdown {
@@ -205,4 +207,15 @@ footer {
 
 .navbar-toggler-icon {
   font-size: 0.8rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .lists {
+    width: 80%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .box {
+    margin: 50px 0;
+  }
 }
