@@ -21,7 +21,16 @@ p {
   font-weight: 200;
   color: #fff;
 }
-
+.lists {
+  width: 80%;
+  background-color: rgba(50,50,50, 0.8);
+  margin-top: 50px;
+  border-radius: 5px;
+  border: 2px solid;
+}
+#title.new-list-name {
+  margin: 50px auto;
+}
 
 /* LISTS STYLE */
 #button-add {
@@ -32,8 +41,10 @@ p {
   background-color: #102A43;
   color: #fff;
   font-size: 30px;
-  padding: 6px;
+  padding: 0 6px;
+  margin-right: 6px;
   border-width: 0;
+  font-family: 'Montserrat', sans-serif;
 }
 #title {
   background-color: #102A43;
@@ -41,18 +52,21 @@ p {
 }
 .box {
   max-width: 400px;
-  margin: 50px auto;
+  margin: 50px 0;
   background: white;
   border-radius: 5px;
   box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
   /* background-color: #637D98; */
   background-color: #334E68;
 }
+.dropdown {
+  display: inline-block;
+  font-size: 1rem;
+}
 form.item {
   text-align: center;
   margin-left: 20px;
 }
-
 input:checked+p {
   text-decoration: line-through;
   text-decoration-color: #102A43;
@@ -68,7 +82,7 @@ input[type="text"] {
   background: transparent;
   font-size: 20px;
   font-weight: 200;
-  width: 313px;
+  width: 100%;
   color: #B1B1B1;
   font-family: 'Montserrat', sans-serif;
 }
@@ -108,6 +122,16 @@ input[type="text"]:focus {
 }
 table{
   width: 100%;
+}
+#header-dropdown {
+  font-size: 2rem;
+  width: 100%;
+}
+#header-dropdown-link{
+  float: right;
+  padding: 0 20px;
+  text-decoration: none;
+  color: #B1B1B1;
 }
 
 /* FOOTER */
@@ -155,4 +179,27 @@ footer {
   text-decoration: none;
   font-weight: 400;
   color: grey
+}
+
+/* HOME PAGE */
+.new-list, .new-list:link, .new-list:visited, .new-list:active {
+  text-decoration: none;
+  color: white;
+  font-weight: 400;
+  font-size: 1.3rem;
+}
+
+#menu-create-list {
+  font-size: 1rem;
+  color: #B1B1B1;
+  border-top: 1px solid #323232;
+  /* padding-top: 1%; */
+}
+
+.no-list-text {
+  font-size: 1.5rem;
+}
+
+.navbar-toggler-icon {
+  font-size: 0.8rem;
 }

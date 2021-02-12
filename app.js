@@ -73,16 +73,16 @@ passport.use(new LocalStrategy(
 ));
 //google auth2.0:
 passport.use(new GoogleStrategy(
-{
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/google/home"
-}, 
-(accessToken, refreshToken, profile, cb) => {
-  User.findOrCreate({ googleId: profile.id }, (err, user) => {
-    return cb(err, user);
-  });
-}
+  {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/home"
+  }, 
+  (accessToken, refreshToken, profile, cb) => {
+    User.findOrCreate({ googleId: profile.id }, (err, user) => {
+      return cb(err, user);
+    });
+  }
 ));
 
 const defaultList = new List({
@@ -92,43 +92,100 @@ const defaultList = new List({
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
-  
-  User.findOne({username: 'playeredlc'}, (err, user) => {
-    if(!err){
-      res.render('list', {
-        date: date.getDate(),
-        listTitle: user.lists[0].name,
-        list: user.lists[0],
-        userID: user._id
-      });
-    }else{
-      console.log(err);
-    }
-  });
+  if(req.isAuthenticated()){
+    res.redirect('/home');
+  }
+  else{
+    res.redirect('/login');
+    //(final version: initial page)
+    //fornow: redirect to login page.
+  }
+});
 
+// HOME PAGE (LOGGED IN USER)
+app.get('/home', (req, res) => {
+  if(req.isAuthenticated()){
+    User.findById(req.user._id, (err, user) => {
+      if(!err){
+        if(user.lists.length == 0){
+          res.render('empty-lists', {
+            auth: req.isAuthenticated(),
+            date: date.getDate()
+          });
+        }else{
+          res.render('list', {
+            auth: req.isAuthenticated(),
+            date: date.getDate(),
+            lists: user.lists,
+            listIndex: 0,
+            userID: user._id
+          });
+        }
+      }else{
+        console.log(err);
+      }
+    });
+  }else{
+    res.redirect('/login');
+  }
+});
+
+// HANDLE LIST CREATION
+app.get('/new-list', (req, res) => {
+  if(req.isAuthenticated()){
+    res.render('new-list', {
+      auth: req.isAuthenticated(),
+      date: date.getDate()
+    });
+  }else{
+    res.redirect('/login');
+  }
+});
+app.post('/new-list', (req, res) => {
+  // CREATE NEW LIST AND REDIRECT TO THE LIST
+  if(req.isAuthenticated()){
+    User.findById(req.user._id, (err, user) => {
+      if(!err){
+        const newList = new List ({
+          name: req.body.listName,
+          items: new Array()
+        });
+        user.lists.push(newList);
+        user.save();
+        res.redirect('/lists/'+newList._id);
+      }else{
+        console.log(err);
+      }
+    })
+  }else{
+    res.redirect('/login');
+  }
 });
 
 //HANDLE NEW TASKS BEING ADDED.
-app.post('/', (req, res) => {
-  const newItem = req.body.newItem;
-  const listID = req.body.listID;
-  const userID = req.body.userID;
-
-  User.findById(userID, (err, user) => {
-    if(!err){
-      user.lists.id(listID).items.push(newItem);
-      user.save(() => {
-        res.redirect('/');     
-      });
-    }else{
-      console.log(err);
-    }
-  });
+app.post('/add-item', (req, res) => {
+  if(req.isAuthenticated()){
+    const newItem = req.body.newItem;
+    const listID = req.body.listID;
+    const userID = req.body.userID;
   
+    User.findById(userID, (err, user) => {
+      if(!err){
+        user.lists.id(listID).items.push(newItem);
+        user.save(() => {
+          res.redirect('/lists/'+listID); 
+        });
+      }else{
+        console.log(err);
+      }
+    });
+  }else{
+    res.redirect('login');
+  } 
 });
 
-//HANDLE DELETIONS
-app.post('/delete', (req, res) => {
+//HANDLE TASK DELETIONS
+app.post('/delete-item', (req, res) => {
   const itemIndex = req.body.itemIndex;
   const listID = req.body.listID;
   const userID = req.body.userID;
@@ -136,29 +193,37 @@ app.post('/delete', (req, res) => {
   User.findById(userID, (err, user) =>{
     user.lists.id(listID).items.splice(itemIndex, 1);
     user.save(()=>{
-      res.redirect('/');
+      res.redirect('/lists/'+listID);
     });
   });
-
 });
 
+// LOG USER IN
 app.get('/login', (req, res) => {
   res.render('login', {
+    auth: req.isAuthenticated(),
     date: date.getDate()
   });
 });
-app.get('/sign-up', (req, res) => {
-  res.render('sign-up', {
-    date: date.getDate()
-  })
-});
-
 app.post('/login',
   passport.authenticate('local', {successRedirect: '/',
   failureRedirect: 'login'
   })
 );
 
+// LOG USER OUT
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+})
+
+// REGISTER USER
+app.get('/sign-up', (req, res) => {
+  res.render('sign-up', {
+    auth: req.isAuthenticated(),
+    date: date.getDate()
+  })
+});
 app.post('/sign-up', (req, res) => {
   User.register({username: req.body.username}, req.body.password, (err, user) => {
     if(!err){
@@ -171,10 +236,11 @@ app.post('/sign-up', (req, res) => {
   });
 });
 
+// AUTHENTICATE WITH GOOGLE OAUTH2.0
 app.get('/auth/google', 
   passport.authenticate('google', {scope:['profile']})
 );
-
+//CALLBACK OF GOOGLE OAUTH2.0
 app.get('/auth/google/home', 
   passport.authenticate('google', {failureRedirect: '/login'}),
   (req, res) => {
@@ -182,20 +248,77 @@ app.get('/auth/google/home',
   }
 );
 
-//DYNAMIC ROUTING FOR OTHER LISTS.
-// app.get('/:listName', (req, res) => {
-  //   let listTitle = _.capitalize(req.params.listName);
-//   Item.find({list: listTitle}, (err, items) => {
-  //     if(!err){
-//       res.render('list',{
-  //         date: date.getDate(),
-  //         listTitle: listTitle,
-  //         list: items
-  //       });      
-  //     }
-  //   });
-  // });
-  
+// DISPLAY SPECIFIC LIST
+app.get('/lists/:listID', (req, res) => {
+  if(req.isAuthenticated()){
+    User.findById(req.user._id, (err, user) => {
+      if(!err){
+        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
+        res.render('list', {
+          auth: req.isAuthenticated(),
+          date: date.getDate(),
+          lists: user.lists,
+          listIndex: listIndex,
+          userID: user._id
+        });
+      }else{
+        console.log(err);
+      }
+    });
+  }else{
+    res.redirect('/login');
+  }
+});
+
+// HANDLE LIST DELETIONS
+app.get('/delete-list/:listID', (req, res) => {
+  if(req.isAuthenticated()){
+    User.findById(req.user._id, (err, user) => {
+      if(!err){
+        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
+        user.lists.splice(listIndex, 1);
+        user.save(() => {
+          res.redirect('/home');
+        });
+      }else{
+        console.log(err);
+      }
+    });
+  }else{
+    res.redirect('/login');
+  }
+});
+
+// HANDLE LIST RENAMING
+app.get('/rename/:listID', (req, res) => {
+  if(req.isAuthenticated()){
+    res.render('rename-list', {
+      auth: req.isAuthenticated(),
+      date: date.getDate()
+    });
+  }else{
+    res.redirect('/login');
+  }
+});
+app.post('/rename/:listID', (req, res) => {
+  if(req.isAuthenticated()){
+    User.findById(req.user._id, (err, user) => {
+      if(!err){
+        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
+        user.lists[listIndex].name=req.body.newListName;
+        user.save(() => {
+          res.redirect('/lists/'+req.params.listID);
+        })
+      }else{
+        console.log(err);
+      }
+    })
+  }else{
+    res.redirect('/login');
+  }
+});
+
+
 if(port == null || port == ''){
   port=3000;
 }

@@ -1,26 +1,63 @@
 <%- include("header"); -%>
   
-  <div id="title" class="box">
-    <h1> <%= listTitle %> </h1>      
-  </div>
-  
-  <div class="box">
-    <% list.items.forEach((item => { %>
-      <div class="item">
-        <form action="/delete" method="POST">
-          <input type="checkbox" name="itemIndex" value="<%= list.items.indexOf(item) %>" onChange="this.form.submit()">
-          <input type="hidden" name="listID" value="<%= list._id %>">
-          <input type="hidden" name="userID" value="<%= userID %>">
-        </form>
-          <p> <%= item %> </p>
-      </div>
-    <% })); %>
+  <div class="row">
+    <div class="col-4">
+        <nav class="lists navbar navbar-dark bg-dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/">Lists</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mylist-toggler" aria-controls="mylist-toggler" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mylist-toggler">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <% lists.forEach((list => { %>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/lists/<%= list._id %>"><%= list.name %></a>
+                  </li>
+                <% })); %>
+                  <li class="nav-item">
+                    <a id="menu-create-list" class="nav-link new-list" href="/new-list"> <i class="fas fa-list"></i> Create new list </a>
+                  </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+    </div>
+    <div class="col-8">
+      <div id="title" class="box">
+        <h1> 
+          <%= lists[listIndex].name %> 
+          <div class="dropdown">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
+              <li><a class="dropdown-item" href="/new-list">Create</a></li>
+              <li><a class="dropdown-item" href="/rename/<%= lists[listIndex]._id %>">Rename</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/delete-list/<%= lists[listIndex]._id %>"><i class="fas fa-trash-alt"></i> Delete</a></li>
+            </ul>
+          </div>
+        </h1> 
 
-    <form class ="item" action="/" method="POST">
-      <input type="text" name="newItem" placeholder="New item" autocomplete="off">
-      <input type="hidden" name="userID" value="<%= userID %>"/>
-      <button id="button-add" type="submit" name="listID" value="<%= list._id %>">+</button>
-    </form>
+      </div>
+      <div class="box">
+        <% lists[listIndex].items.forEach((item => { %>
+          <div class="item">
+            <form action="/delete-item" method="POST">
+              <input type="checkbox" name="itemIndex" value="<%= lists[listIndex].items.indexOf(item) %>" onChange="this.form.submit()">
+              <input type="hidden" name="listID" value="<%= lists[listIndex]._id %>">
+              <input type="hidden" name="userID" value="<%= userID %>">
+            </form>
+              <p> <%= item %> </p>
+          </div>
+        <% })); %>
+    
+        <form class ="item" action="/add-item" method="POST">
+          <input type="text" name="newItem" placeholder="New item" autocomplete="off">
+          <input type="hidden" name="userID" value="<%= userID %>"/>
+          <button id="button-add" type="submit" name="listID" value="<%= lists[listIndex]._id %>">+</button>
+        </form>
+      </div>
+    </div>
   </div>
 
 <%- include("footer"); -%>
