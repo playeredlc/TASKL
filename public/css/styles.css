@@ -31,6 +31,9 @@ p {
 #title.new-list-name {
   margin: 50px auto;
 }
+.box.empty-list {
+  margin: 50px auto;
+}
 
 /* LISTS STYLE */
 #button-add {

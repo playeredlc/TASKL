@@ -79,16 +79,15 @@ passport.use(new GoogleStrategy(
     callbackURL: "http://localhost:3000/auth/google/home"
   }, 
   (accessToken, refreshToken, profile, cb) => {
-    User.findOrCreate({ googleId: profile.id }, (err, user) => {
+    const defaultList = new List({
+      name: 'Quick List',
+      items: ['Welcome to your TASKList', 'Hit the + button to add a new task', 'Use the checkbox to discard accomplished tasks.']
+    });
+    User.findOrCreate({ googleId: profile.id }, { lists: defaultList }, (err, user) => {
       return cb(err, user);
     });
   }
 ));
-
-const defaultList = new List({
-  name: 'Quick List',
-  items: ['Welcome to your TASKList', 'Hit the + button to add a new task', 'Use the checkbox to discard accomplished tasks.']
-});
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
@@ -228,7 +227,14 @@ app.post('/sign-up', (req, res) => {
   User.register({username: req.body.username}, req.body.password, (err, user) => {
     if(!err){
       passport.authenticate('local')(req, res, () => {
-        res.redirect('/');
+        const defaultList = new List({
+          name: 'Quick List',
+          items: ['Welcome to your TASKList', 'Hit the + button to add a new task', 'Use the checkbox to discard accomplished tasks.']
+        });
+        user.lists.push(defaultList);
+        user.save(() => {
+          res.redirect('/');
+        });
       });
     }else{
       console.log(err);
