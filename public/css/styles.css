@@ -193,22 +193,31 @@ footer {
   font-weight: 400;
   font-size: 1.3rem;
 }
-
 #menu-create-list {
   font-size: 1rem;
   color: #B1B1B1;
   border-top: 1px solid #323232;
   /* padding-top: 1%; */
 }
-
 .no-list-text {
   font-size: 1.5rem;
 }
-
 .navbar-toggler-icon {
   font-size: 0.8rem;
 }
 
+/* GET-STARTED PAGE */
+#home-img {
+  width: 100%;
+}
+.initial-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #B1B1B1;
+}
+
+/* tablets */
 @media only screen and (min-width: 768px) {
   .lists {
     width: 80%;
@@ -217,5 +226,19 @@ footer {
   }
   .box {
     margin: 50px 0;
+  }
+}
+
+/* desktops */
+@media only screen and (min-width: 992px) {
+  .initial-text {
+    font-size: 1.5rem;
+  }
+}
+
+/* large desktops */
+@media only screen and (min-width: 1200px) {
+  .initial-text {
+    font-size: 2rem;
   }
 }

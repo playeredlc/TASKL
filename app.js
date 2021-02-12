@@ -95,10 +95,15 @@ app.get('/', (req, res) => {
     res.redirect('/home');
   }
   else{
-    res.redirect('/login');
-    //(final version: initial page)
-    //fornow: redirect to login page.
+    res.redirect('/get-started');
   }
+});
+
+app.get('/get-started', (req, res) => {
+  res.render('get-started', {
+    auth: req.isAuthenticated(),
+    date: date.getDate()
+  });
 });
 
 // HOME PAGE (LOGGED IN USER)
