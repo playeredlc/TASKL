@@ -30,7 +30,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //CONNECT TO DB
-mongoose.connect('mongodb+srv://'+ process.env.DB_USER +':'+ process.env.DB_PASS +'@cluster0.k8whr.mongodb.net/'+process.env.DB_NAME+'?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect('mongodb+srv://'+ process.env.DB_USER +':'+ process.env.DB_PASS + '@' + process.env.DB_CLUSTER + '.mongodb.net/' + process.env.DB_NAME, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const listSchema = new mongoose.Schema({
   name: String,
