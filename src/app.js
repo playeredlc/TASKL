@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const _ = require('lodash');
-const date = require(__dirname+'/date.js');
+const date = require('./utils/date');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
@@ -12,11 +12,11 @@ const LocalStrategy = require('passport-local').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 
 const app = express();
-let port = process.env.PORT;
 
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
 
 //express-session config
 app.use(session({
@@ -331,9 +331,4 @@ app.post('/rename/:listID', (req, res) => {
 });
 
 
-if(port == null || port == ''){
-  port=3000;
-}
-app.listen(port, () => {
-  console.log('started at port 3000..');
-});
+module.exports = app;
