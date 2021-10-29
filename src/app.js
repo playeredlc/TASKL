@@ -11,6 +11,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 
+const config = require('./config/config');
+
 const app = express();
 
 app.use(express.static(__dirname + '/public'));
@@ -19,18 +21,14 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 //express-session config
-app.use(session({
-  secret: process.env.SECRET_STR,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {maxAge: 31556952000} //31556952000ms = 1 year
-}));
+app.use(session(config.session));
+
 //initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
 
 //CONNECT TO DB
-mongoose.connect('mongodb+srv://'+ process.env.DB_USER +':'+ process.env.DB_PASS + '@' + process.env.DB_CLUSTER + '.mongodb.net/' + process.env.DB_NAME, {useNewUrlParser: true, useUnifiedTopology: true});
+config.database.connection();
 
 const listSchema = new mongoose.Schema({
   name: String,
@@ -73,12 +71,7 @@ passport.use(new LocalStrategy(
 ));
 //google auth2.0:
 passport.use(new GoogleStrategy(
-  {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "https://glacial-garden-88459.herokuapp.com/auth/google/home"
-    // callbackURL: "http://localhost:3000/auth/google/home"
-  }, 
+  config.googleStrategy, 
   (accessToken, refreshToken, profile, cb) => {
     const defaultList = new List({
       name: 'Quick List',
