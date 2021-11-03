@@ -1,15 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const _ = require('lodash');
 const date = require('./utils/date');
 const session = require('express-session');
 const passport = require('passport');
-const passportLocalMongoose = require('passport-local-mongoose');
+// const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
-const findOrCreate = require('mongoose-findorcreate');
+// const findOrCreate = require('mongoose-findorcreate');
 
 const config = require('./config/config');
 
@@ -30,21 +30,8 @@ app.use(passport.session());
 //CONNECT TO DB
 config.database.connection();
 
-const listSchema = new mongoose.Schema({
-  name: String,
-  items: Array
-});
-const userSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-  googleId: String,
-  lists: [listSchema]
-});
-userSchema.plugin(passportLocalMongoose);
-userSchema.plugin(findOrCreate);
-
-const User = mongoose.model('User', userSchema);
-const List = mongoose.model('List', listSchema);
+const User = require('./models/User').model;
+const List = require('./models/List').model;
 
 //session
 passport.serializeUser(function(user, done) {
