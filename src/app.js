@@ -1,15 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-// const mongoose = require('mongoose');
-const _ = require('lodash');
 const date = require('./utils/date');
 const session = require('express-session');
 const passport = require('passport');
-// const passportLocalMongoose = require('passport-local-mongoose');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
-// const findOrCreate = require('mongoose-findorcreate');
 
 const userService = require('./services/user.service');
 const listService = require('./services/list.service');
@@ -26,52 +20,17 @@ app.set('views', __dirname + '/views');
 //express-session config
 app.use(session(config.session));
 
+//CONNECT TO DB
+config.database.connection();
+
 //initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-//CONNECT TO DB
-config.database.connection();
-
-const User = require('./models/User').model;
-const List = require('./models/List').model;
-
-//session
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-});
-
-//Set authentication strategies
-//local: username/password
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.findOne({ username: username }, function(err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      return done(null, user);
-    });
-  }
-));
-//google auth2.0:
-passport.use(new GoogleStrategy(
-  config.googleStrategy, 
-  (accessToken, refreshToken, profile, cb) => {
-    const defaultList = new List({
-      name: 'Quick List',
-      items: ['Welcome to your TASKList', 'Hit the + button to add a new task', 'Use the checkbox to discard accomplished tasks.']
-    });
-    User.findOrCreate({ googleId: profile.id }, { lists: defaultList }, (err, user) => {
-      return cb(err, user);
-    });
-  }
-));
+// configure passport
+config.passport.session();
+config.passport.local();
+config.passport.google();
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
