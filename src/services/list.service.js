@@ -1,7 +1,7 @@
 const List = require('../models/List').model;
 const userService = require('./user.service');
 
-exports.createList = async (listName) => {
+exports.createList = (listName) => {
 	try {
 		const newList = new List({
 			name: listName,
@@ -15,7 +15,7 @@ exports.createList = async (listName) => {
 	}
 };
 
-exports.createDefault = async () => {
+exports.createDefault = () => {
 	const defaultItems = [
 		'Welcome to your TASKList',
 		'Hit the + button to add a new task', 
@@ -39,7 +39,8 @@ exports.addTask = async (userId, listId, item) => {
 	try {
 		const user = await userService.findUser(userId);
 		user.lists.id(listId).items.push(item);
-		user = await user.save();
+		
+		await user.save();
 		
 		return user;
 
@@ -52,7 +53,8 @@ exports.deleteTask = async (userId, listId, itemIndex) => {
 	try {
 		const user = await userService.findUser(userId);
 		user.lists.id(listId).items.splice(itemIndex, 1);
-		user = await user.save();
+		
+		await user.save();
 
 		return user;
 
@@ -78,7 +80,8 @@ exports.addList = async (userId, listName) => {
 		const newList = this.createList(listName);
 		const user = await userService.findUser(userId);
 		user.lists.push(newList);
-		user.save();
+		
+		await user.save();
 
 		return newList._id;
 
@@ -90,9 +93,10 @@ exports.addList = async (userId, listName) => {
 exports.deleteList = async (userId, listId) => {
 	try {
 		const user = await userService.findUser(userId);
-		const index = this.getListIndex(listId);
-		user.lists.splice(listIndex, 1);
-		user = await user.save();
+		const index = await this.getListIndex(userId, listId);
+		user.lists.splice(index, 1);
+		
+		await user.save();
 
 		return index;
 
@@ -104,10 +108,11 @@ exports.deleteList = async (userId, listId) => {
 exports.renameList = async (userId, listId, newName) => {
 	try {
 		const user = await userService.findUser(userId);
-		const index = this.getListIndex(listId);
+		const index = await this.getListIndex(userId, listId);
 
 		user.lists[index].name = newName;
-		user = await user.save();
+		
+		await user.save();
 
 		return listId;
 

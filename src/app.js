@@ -11,6 +11,9 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 // const findOrCreate = require('mongoose-findorcreate');
 
+const userService = require('./services/user.service');
+const listService = require('./services/list.service');
+
 const config = require('./config/config');
 
 const app = express();
@@ -88,35 +91,33 @@ app.get('/get-started', (req, res) => {
 });
 
 // HOME PAGE (LOGGED IN USER)
-app.get('/home', (req, res) => {
+app.get('/home', async (req, res) => {
   if(req.isAuthenticated()){
-    User.findById(req.user._id, (err, user) => {
-      if(!err){
-        if(user.lists.length == 0){
-          res.render('empty-lists', {
-            auth: req.isAuthenticated(),
-            date: date.getDate()
-          });
-        }else{
-          res.render('list', {
-            auth: req.isAuthenticated(),
-            date: date.getDate(),
-            lists: user.lists,
-            listIndex: 0,
-            userID: user._id
-          });
-        }
-      }else{
-        console.log(err);
-      }
-    });
-  }else{
+    
+		const user = await userService.findUser(req.user._id);
+
+    if(userService.hasList(user._id)){
+      res.render('list', {
+        auth: req.isAuthenticated(),
+        date: date.getDate(),
+        lists: user.lists,
+        listIndex: 0,
+        userID: user._id,
+      });
+    } else {
+      res.render('empty-lists', {
+        auth: req.isAuthenticated(),
+        date: date.getDate()
+      });
+    }
+  } else {
     res.redirect('/login');
   }
+
 });
 
 // HANDLE LIST CREATION
-app.get('/new-list', (req, res) => {
+app.get('/new-list', async (req, res) => {
   if(req.isAuthenticated()){
     res.render('new-list', {
       auth: req.isAuthenticated(),
@@ -126,61 +127,50 @@ app.get('/new-list', (req, res) => {
     res.redirect('/login');
   }
 });
-app.post('/new-list', (req, res) => {
+app.post('/new-list', async (req, res) => {
   // CREATE NEW LIST AND REDIRECT TO THE LIST
   if(req.isAuthenticated()){
-    User.findById(req.user._id, (err, user) => {
-      if(!err){
-        const newList = new List ({
-          name: req.body.listName,
-          items: new Array()
-        });
-        user.lists.push(newList);
-        user.save();
-        res.redirect('/lists/'+newList._id);
-      }else{
-        console.log(err);
-      }
-    })
-  }else{
-    res.redirect('/login');
-  }
+    try {
+			const userId = req.user._id;
+			const listName = req.body.listName;
+	
+			const newListId = await listService.addList(userId, listName);
+
+			res.redirect('/lists/'+newListId);
+		} catch (err) {
+			throw new Error(err.message);
+		}	
+	} else {
+		res.redirect('/login');
+	}
 });
 
 //HANDLE NEW TASKS BEING ADDED.
-app.post('/add-item', (req, res) => {
+app.post('/add-item', async (req, res) => {
   if(req.isAuthenticated()){
     const newItem = req.body.newItem;
-    const listID = req.body.listID;
-    const userID = req.body.userID;
-  
-    User.findById(userID, (err, user) => {
-      if(!err){
-        user.lists.id(listID).items.push(newItem);
-        user.save(() => {
-          res.redirect('/lists/'+listID); 
-        });
-      }else{
-        console.log(err);
-      }
-    });
+    const listId = req.body.listID;
+    const userId = req.body.userID;
+		
+		await listService.addTask(userId, listId, newItem);
+
+		res.redirect('/lists/'+listId);
+
   }else{
     res.redirect('login');
   } 
 });
 
 //HANDLE TASK DELETIONS
-app.post('/delete-item', (req, res) => {
+app.post('/delete-item', async (req, res) => {
   const itemIndex = req.body.itemIndex;
-  const listID = req.body.listID;
-  const userID = req.body.userID;
+  const listId = req.body.listID;
+  const userId = req.body.userID;
 
-  User.findById(userID, (err, user) =>{
-    user.lists.id(listID).items.splice(itemIndex, 1);
-    user.save(()=>{
-      res.redirect('/lists/'+listID);
-    });
-  });
+	await listService.deleteTask(userId, listId, itemIndex);
+
+  res.redirect('/lists/'+listId);
+
 });
 
 // LOG USER IN
@@ -209,23 +199,18 @@ app.get('/sign-up', (req, res) => {
     date: date.getDate()
   })
 });
-app.post('/sign-up', (req, res) => {
-  User.register({username: req.body.username}, req.body.password, (err, user) => {
-    if(!err){
-      passport.authenticate('local')(req, res, () => {
-        const defaultList = new List({
-          name: 'Quick List',
-          items: ['Welcome to your TASKList', 'Hit the + button to add a new task', 'Use the checkbox to discard accomplished tasks.']
-        });
-        user.lists.push(defaultList);
-        user.save(() => {
-          res.redirect('/');
-        });
-      });
-    }else{
-      console.log(err);
-    }
-  });
+app.post('/sign-up', async (req, res) => {
+  try{
+		await userService.createUser(req.body.username, req.body.password);
+		
+		passport.authenticate('local')(req ,res, () => {
+			res.redirect('/');
+		});
+	
+	} catch (err) {
+		throw new Error(err.message);
+	}
+
 });
 
 // AUTHENTICATE WITH GOOGLE OAUTH2.0
@@ -241,41 +226,29 @@ app.get('/auth/google/home',
 );
 
 // DISPLAY SPECIFIC LIST
-app.get('/lists/:listID', (req, res) => {
+app.get('/lists/:listId', async (req, res) => {
   if(req.isAuthenticated()){
-    User.findById(req.user._id, (err, user) => {
-      if(!err){
-        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
-        res.render('list', {
-          auth: req.isAuthenticated(),
-          date: date.getDate(),
-          lists: user.lists,
-          listIndex: listIndex,
-          userID: user._id
-        });
-      }else{
-        console.log(err);
-      }
-    });
+    const user = await userService.findUser(req.user._id);
+		const listIndex = await listService.getListIndex(user._id, req.params.listId)
+
+		res.render('list', {
+			auth: req.isAuthenticated(),
+			date: date.getDate(),
+			lists: user.lists,
+			listIndex: listIndex,
+			userID: user._id
+		});
+
   }else{
     res.redirect('/login');
   }
 });
 
 // HANDLE LIST DELETIONS
-app.get('/delete-list/:listID', (req, res) => {
+app.get('/delete-list/:listId', async (req, res) => {
   if(req.isAuthenticated()){
-    User.findById(req.user._id, (err, user) => {
-      if(!err){
-        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
-        user.lists.splice(listIndex, 1);
-        user.save(() => {
-          res.redirect('/home');
-        });
-      }else{
-        console.log(err);
-      }
-    });
+		await listService.deleteList(req.user._id, req.params.listId);
+		res.redirect('/home');		
   }else{
     res.redirect('/login');
   }
@@ -292,23 +265,13 @@ app.get('/rename/:listID', (req, res) => {
     res.redirect('/login');
   }
 });
-app.post('/rename/:listID', (req, res) => {
+app.post('/rename/:listId', async (req, res) => {
   if(req.isAuthenticated()){
-    User.findById(req.user._id, (err, user) => {
-      if(!err){
-        const listIndex = user.lists.indexOf(user.lists.id(req.params.listID));
-        user.lists[listIndex].name=req.body.newListName;
-        user.save(() => {
-          res.redirect('/lists/'+req.params.listID);
-        })
-      }else{
-        console.log(err);
-      }
-    })
+    await listService.renameList(req.user._id, req.params.listId, req.body.newListName);
+		res.redirect('/lists/'+req.params.listId);
   }else{
     res.redirect('/login');
   }
 });
-
 
 module.exports = app;

@@ -1,11 +1,11 @@
-const User = require('./models/User').model;
+const User = require('../models/User').model;
 const listService = require('./list.service');
 
 exports.findUser = async (userId) => {	
 	try {	
-		const result = await User.findById(userId);
+		const user = await User.findById(userId);
 		
-		return result;
+		return user;
 		
 	} catch (err) {
 		throw new Error(err.message);
