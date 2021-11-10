@@ -7,7 +7,7 @@ const passport = require('passport');
 
 const listController = require('./controllers/list.controller');
 const userController = require('./controllers/user.controller');
-
+const isAuth = require('./middlewares/isAuth');
 
 const config = require('./config/config');
 
@@ -51,42 +51,19 @@ app.get('/get-started', (req, res) => {
 });
 
 // HOME PAGE (LOGGED IN USER)
-app.get('/home', (req, res) => {
-  if(req.isAuthenticated()){
-    userController.getById(req, res);
-  } else {
-    res.redirect('/login');
-  }
-});
+app.get('/home', isAuth, userController.getById);
 
 // HANDLE LIST CREATION
-app.get('/new-list', (req, res) => {
-  if(req.isAuthenticated()){
-    res.render('new-list', {
-      auth: req.isAuthenticated(),
-      date: date.getDate()
-    });
-  }else{
-    res.redirect('/login');
-  }
+app.get('/new-list', isAuth, (req, res) => {
+  res.render('new-list', {
+    auth: req.isAuthenticated(),
+    date: date.getDate()
+  });
 });
-app.post('/new-list', (req, res) => {
-  // CREATE NEW LIST AND REDIRECT TO THE LIST
-  if(req.isAuthenticated()){
-    listController.create(req, res);	
-	} else {
-		res.redirect('/login');
-	}
-});
+app.post('/new-list', isAuth, listController.create);
 
 //HANDLE NEW TASKS BEING ADDED.
-app.post('/add-item', (req, res) => {
-  if(req.isAuthenticated()){
-    listController.add(req, res);
-  }else{
-    res.redirect('login');
-  } 
-});
+app.post('/add-item', isAuth, listController.add);
 
 //HANDLE TASK DELETIONS
 app.post('/delete-item', listController.delete);
@@ -139,40 +116,18 @@ app.get('/auth/google/home',
 );
 
 // DISPLAY SPECIFIC LIST
-app.get('/lists/:listId', (req, res) => {
-  if(req.isAuthenticated()){
-    listController.display(req, res);
-  }else{
-    res.redirect('/login');
-  }
-});
+app.get('/lists/:listId', isAuth, listController.display);
 
 // HANDLE LIST DELETIONS
-app.get('/delete-list/:listId', (req, res) => {
-  if(req.isAuthenticated()){
-    listController.destroy(req, res);
-  }else{
-    res.redirect('/login');
-  }
-});
+app.get('/delete-list/:listId', isAuth, listController.destroy);
 
 // HANDLE LIST RENAMING
-app.get('/rename/:listId', (req, res) => {
-  if(req.isAuthenticated()){
-    res.render('rename-list', {
-      auth: req.isAuthenticated(),
-      date: date.getDate()
-    });
-  }else{
-    res.redirect('/login');
-  }
+app.get('/rename/:listId', isAuth, (req, res) => {
+  res.render('rename-list', {
+    auth: req.isAuthenticated(),
+    date: date.getDate()
+  });
 });
-app.post('/rename/:listId', (req, res) => {
-  if(req.isAuthenticated()){
-    listController.rename(req, res);
-  }else{
-    res.redirect('/login');
-  }
-});
+app.post('/rename/:listId', isAuth, listController.rename);
 
 module.exports = app;
