@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('../models/User').model;
 const listService = require('../services/list.service');
+const userService = require('../services/user.service');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
@@ -18,21 +19,20 @@ config.database = {
 
 // express-session config
 config.session = {
-	secret: process.env.SECRET_STR,
+  secret: process.env.SECRET_STR,
   resave: false,
   saveUninitialized: false,
   cookie: {maxAge: 31556952000} //31556952000ms = 1 year
 };
 
-// passport auth with GoogleOAuth2
-config.googleStrategy = {
-	clientID: process.env.GOOGLE_CLIENT_ID,
-	clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-	callbackURL: "https://glacial-garden-88459.herokuapp.com/auth/google/home"
-	// callbackURL: "http://localhost:3000/auth/google/home"
-};
-
 config.passport = {
+	googleStrategy: {
+		clientID: process.env.GOOGLE_CLIENT_ID,
+		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+		callbackURL: "https://glacial-garden-88459.herokuapp.com/auth/google/home"
+		// callbackURL: "http://localhost:3000/auth/google/home"
+	},
+	
 	session: () => {
 		passport.serializeUser(function (user, done) {
 			done(null, user.id);
@@ -46,32 +46,30 @@ config.passport = {
 
 	local: () => {
 		passport.use(new LocalStrategy(
-			function(username, password, done) {
-				User.findOne({ username: username }, function(err, user) {
-					if (err) { return done(err); }
-					if (!user) {
-						return done(null, false, { message: 'Incorrect username.' });
+			async function(username, password, done) {
+				try {
+					const user = await userService.findByUserame(username);
+					if(!user) {
+						return done(null, false, { message: 'Incorrect username' });
 					}
+					
 					return done(null, user);
-				});
+				
+				} catch (err) {
+					return done(err);
+				}
 			}
 		));
 	},
 	
 	google: () => {
 		passport.use(new GoogleStrategy(
-			config.googleStrategy, 
-			(accessToken, refreshToken, profile, cb) => {
-				User.findOrCreate({ googleId: profile.id }, { lists: listService.createDefault() }, (err, user) => {
-					return cb(err, user);
-				});
+			config.passport.googleStrategy, 
+			async (accessToken, refreshToken, profile, cb) => {
+				await userService.findOrCreate(profile.id, cb);
 			}
 		));
-	}
-
-
-
-
-}
+	},
+};
 
 module.exports = config;
