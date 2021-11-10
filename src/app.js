@@ -5,8 +5,9 @@ const date = require('./utils/date');
 const session = require('express-session');
 const passport = require('passport');
 
-const userService = require('./services/user.service');
-const listService = require('./services/list.service');
+const listController = require('./controllers/list.controller');
+const userController = require('./controllers/user.controller');
+
 
 const config = require('./config/config');
 
@@ -50,33 +51,16 @@ app.get('/get-started', (req, res) => {
 });
 
 // HOME PAGE (LOGGED IN USER)
-app.get('/home', async (req, res) => {
+app.get('/home', (req, res) => {
   if(req.isAuthenticated()){
-    
-		const user = await userService.findUser(req.user._id);
-
-    if(userService.hasList(user._id)){
-      res.render('list', {
-        auth: req.isAuthenticated(),
-        date: date.getDate(),
-        lists: user.lists,
-        listIndex: 0,
-        userID: user._id,
-      });
-    } else {
-      res.render('empty-lists', {
-        auth: req.isAuthenticated(),
-        date: date.getDate()
-      });
-    }
+    userController.getById(req, res);
   } else {
     res.redirect('/login');
   }
-
 });
 
 // HANDLE LIST CREATION
-app.get('/new-list', async (req, res) => {
+app.get('/new-list', (req, res) => {
   if(req.isAuthenticated()){
     res.render('new-list', {
       auth: req.isAuthenticated(),
@@ -86,51 +70,26 @@ app.get('/new-list', async (req, res) => {
     res.redirect('/login');
   }
 });
-app.post('/new-list', async (req, res) => {
+app.post('/new-list', (req, res) => {
   // CREATE NEW LIST AND REDIRECT TO THE LIST
   if(req.isAuthenticated()){
-    try {
-			const userId = req.user._id;
-			const listName = req.body.listName;
-	
-			const newListId = await listService.addList(userId, listName);
-
-			res.redirect('/lists/'+newListId);
-		} catch (err) {
-			throw new Error(err.message);
-		}	
+    listController.create(req, res);	
 	} else {
 		res.redirect('/login');
 	}
 });
 
 //HANDLE NEW TASKS BEING ADDED.
-app.post('/add-item', async (req, res) => {
+app.post('/add-item', (req, res) => {
   if(req.isAuthenticated()){
-    const newItem = req.body.newItem;
-    const listId = req.body.listID;
-    const userId = req.body.userID;
-		
-		await listService.addTask(userId, listId, newItem);
-
-		res.redirect('/lists/'+listId);
-
+    listController.add(req, res);
   }else{
     res.redirect('login');
   } 
 });
 
 //HANDLE TASK DELETIONS
-app.post('/delete-item', async (req, res) => {
-  const itemIndex = req.body.itemIndex;
-  const listId = req.body.listID;
-  const userId = req.body.userID;
-
-	await listService.deleteTask(userId, listId, itemIndex);
-
-  res.redirect('/lists/'+listId);
-
-});
+app.post('/delete-item', listController.delete);
 
 // LOG USER IN
 app.get('/login', (req, res) => {
@@ -140,16 +99,17 @@ app.get('/login', (req, res) => {
   });
 });
 app.post('/login',
-  passport.authenticate('local', {successRedirect: '/',
-  failureRedirect: 'login'
-  })
+    passport.authenticate(
+      'local',
+      {
+        successRedirect: '/',
+        failureRedirect: 'login',
+      }
+    )
 );
 
 // LOG USER OUT
-app.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-})
+app.get('/logout', userController.logout);
 
 // REGISTER USER
 app.get('/sign-up', (req, res) => {
@@ -158,63 +118,46 @@ app.get('/sign-up', (req, res) => {
     date: date.getDate()
   })
 });
-app.post('/sign-up', async (req, res) => {
-  try{
-		await userService.createUser(req.body.username, req.body.password);
-		
-		passport.authenticate('local')(req ,res, () => {
-			res.redirect('/');
-		});
-	
-	} catch (err) {
-		throw new Error(err.message);
-	}
-
-});
+app.post('/sign-up', userController.register);
 
 // AUTHENTICATE WITH GOOGLE OAUTH2.0
 app.get('/auth/google', 
-  passport.authenticate('google', {scope:['profile']})
+  passport.authenticate(
+    'google',
+    { scope:['profile'] }
+  )
 );
 //CALLBACK OF GOOGLE OAUTH2.0
 app.get('/auth/google/home', 
-  passport.authenticate('google', {failureRedirect: '/login'}),
-  (req, res) => {
-    res.redirect('/');
-  }
+  passport.authenticate(
+    'google',
+    {
+      successRedirect: '/',
+      failureRedirect: '/login',
+    }
+  )
 );
 
 // DISPLAY SPECIFIC LIST
-app.get('/lists/:listId', async (req, res) => {
+app.get('/lists/:listId', (req, res) => {
   if(req.isAuthenticated()){
-    const user = await userService.findUser(req.user._id);
-		const listIndex = await listService.getListIndex(user._id, req.params.listId)
-
-		res.render('list', {
-			auth: req.isAuthenticated(),
-			date: date.getDate(),
-			lists: user.lists,
-			listIndex: listIndex,
-			userID: user._id
-		});
-
+    listController.display(req, res);
   }else{
     res.redirect('/login');
   }
 });
 
 // HANDLE LIST DELETIONS
-app.get('/delete-list/:listId', async (req, res) => {
+app.get('/delete-list/:listId', (req, res) => {
   if(req.isAuthenticated()){
-		await listService.deleteList(req.user._id, req.params.listId);
-		res.redirect('/home');		
+    listController.destroy(req, res);
   }else{
     res.redirect('/login');
   }
 });
 
 // HANDLE LIST RENAMING
-app.get('/rename/:listID', (req, res) => {
+app.get('/rename/:listId', (req, res) => {
   if(req.isAuthenticated()){
     res.render('rename-list', {
       auth: req.isAuthenticated(),
@@ -224,10 +167,9 @@ app.get('/rename/:listID', (req, res) => {
     res.redirect('/login');
   }
 });
-app.post('/rename/:listId', async (req, res) => {
+app.post('/rename/:listId', (req, res) => {
   if(req.isAuthenticated()){
-    await listService.renameList(req.user._id, req.params.listId, req.body.newListName);
-		res.redirect('/lists/'+req.params.listId);
+    listController.rename(req, res);
   }else{
     res.redirect('/login');
   }
