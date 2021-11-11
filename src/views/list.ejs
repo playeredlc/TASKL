@@ -12,11 +12,11 @@
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <% lists.forEach((list => { %>
                   <li class="nav-item">
-                    <a class="nav-link" href="/lists/<%= list._id %>"><%= list.name %></a>
+                    <a class="nav-link" href="/list/<%= list._id %>"><%= list.name %></a>
                   </li>
                 <% })); %>
                   <li class="nav-item">
-                    <a id="menu-create-list" class="nav-link new-list" href="/new-list"> <i class="fas fa-list"></i> Create new list </a>
+                    <a id="menu-create-list" class="nav-link new-list" href="/lists/create"> <i class="fas fa-list"></i> Create new list </a>
                   </li>
               </ul>
             </div>
@@ -30,10 +30,10 @@
           <div class="dropdown">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></a>
             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
-              <li><a class="dropdown-item" href="/new-list">Create</a></li>
-              <li><a class="dropdown-item" href="/rename/<%= lists[listIndex]._id %>">Rename</a></li>
+              <li><a class="dropdown-item" href="/lists/create">Create</a></li>
+              <li><a class="dropdown-item" href="/lists/rename/<%= lists[listIndex]._id %>">Rename</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/delete-list/<%= lists[listIndex]._id %>"><i class="fas fa-trash-alt"></i> Delete</a></li>
+              <li><a class="dropdown-item" href="/lists/remove/<%= lists[listIndex]._id %>"><i class="fas fa-trash-alt"></i> Delete</a></li>
             </ul>
           </div>
         </h1> 
@@ -42,7 +42,7 @@
       <div class="box">
         <% lists[listIndex].items.forEach((item => { %>
           <div class="item">
-            <form action="/delete-item" method="POST">
+            <form action="/lists/delete-task" method="POST">
               <input type="checkbox" name="itemIndex" value="<%= lists[listIndex].items.indexOf(item) %>" onChange="this.form.submit()">
               <input type="hidden" name="listID" value="<%= lists[listIndex]._id %>">
               <input type="hidden" name="userID" value="<%= userID %>">
@@ -51,7 +51,7 @@
           </div>
         <% })); %>
     
-        <form class ="item" action="/add-item" method="POST">
+        <form class ="item" action="/lists/add-task" method="POST">
           <input type="text" name="newItem" placeholder="New item" autocomplete="off">
           <input type="hidden" name="userID" value="<%= userID %>"/>
           <button id="button-add" type="submit" name="listID" value="<%= lists[listIndex]._id %>">+</button>

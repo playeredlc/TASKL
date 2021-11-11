@@ -9,7 +9,7 @@ exports.create = async (req, res) => {
 
 		const newListId = await listService.addList(userId, listName);
 
-		res.redirect('/lists/' + newListId);
+		res.redirect('/list/' + newListId);
 
 	} catch (err) {
 		throw new Error(err.message);
@@ -24,7 +24,7 @@ exports.add = async (req, res) => {
 
 		await listService.addTask(userId, listId, newItem);
 
-		res.redirect('/lists/' + listId);
+		res.redirect('/list/' + listId);
 
 	} catch (err) {
 		throw new Error(err.message);
@@ -39,7 +39,7 @@ exports.delete = async (req, res) => {
 
 		await listService.deleteTask(userId, listId, itemIndex);
 
-		res.redirect('/lists/' + listId);
+		res.redirect('/list/' + listId);
 
 	} catch (err) {
 		throw new Error(err.message);
@@ -79,7 +79,7 @@ exports.rename = async (req, res) => {
 	try {
 		await listService.renameList(req.user._id, req.params.listId, req.body.newListName);
 		
-		res.redirect('/lists/'+req.params.listId);
+		res.redirect('/list/'+req.params.listId);
 
 	} catch (err) {
 		throw new Error(err.message);

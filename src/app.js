@@ -53,21 +53,6 @@ app.get('/get-started', (req, res) => {
 // HOME PAGE (LOGGED IN USER)
 app.get('/home', isAuth, userController.getById);
 
-// HANDLE LIST CREATION
-app.get('/new-list', isAuth, (req, res) => {
-  res.render('new-list', {
-    auth: req.isAuthenticated(),
-    date: date.getDate()
-  });
-});
-app.post('/new-list', isAuth, listController.create);
-
-//HANDLE NEW TASKS BEING ADDED.
-app.post('/add-item', isAuth, listController.add);
-
-//HANDLE TASK DELETIONS
-app.post('/delete-item', listController.delete);
-
 // LOG USER IN
 app.get('/login', (req, res) => {
   res.render('login', {
@@ -115,19 +100,7 @@ app.get('/auth/google/home',
   )
 );
 
-// DISPLAY SPECIFIC LIST
-app.get('/lists/:listId', isAuth, listController.display);
-
-// HANDLE LIST DELETIONS
-app.get('/delete-list/:listId', isAuth, listController.destroy);
-
-// HANDLE LIST RENAMING
-app.get('/rename/:listId', isAuth, (req, res) => {
-  res.render('rename-list', {
-    auth: req.isAuthenticated(),
-    date: date.getDate()
-  });
-});
-app.post('/rename/:listId', isAuth, listController.rename);
+const listRoute = require('./routes/list.routes');
+app.use(listRoute);
 
 module.exports = app;
