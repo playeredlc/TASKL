@@ -1,12 +1,10 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/User').model;
-const listService = require('../services/list.service');
 const userService = require('../services/user.service');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
-const findOrCreate = require('mongoose-findorcreate');
+const User = require('../models/User').model;
 
 let config = {};
 
@@ -45,21 +43,7 @@ config.passport = {
 	},
 
 	local: () => {
-		passport.use(new LocalStrategy(
-			async function(username, password, done) {
-				try {
-					const user = await userService.findByUserame(username);
-					if(!user) {
-						return done(null, false, { message: 'Incorrect username' });
-					}
-					
-					return done(null, user);
-				
-				} catch (err) {
-					return done(err);
-				}
-			}
-		));
+		passport.use(new LocalStrategy(User.authenticate()));
 	},
 	
 	google: () => {

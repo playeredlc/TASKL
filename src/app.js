@@ -3,33 +3,30 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 
+const app = express();
 const config = require('./config/config');
 
-const app = express();
-
 app.use(express.static(__dirname + '/public'));
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ type: 'application/vnd.api+json' }));
 
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+// mongodb connection
+config.database.connection();
 
 //express-session config
 app.use(session(config.session));
 
-//CONNECT TO DB
-config.database.connection();
-
-//initialize passport
+//initialize and configure passport
 app.use(passport.initialize());
 app.use(passport.session());
-
-// configure passport
 config.passport.session();
 config.passport.local();
 config.passport.google();
 
+//routes in use
 const initialRoute = require('./routes/initial.routes');
 const listRoute = require('./routes/list.routes');
 const userRoute = require('./routes/user.routes');
