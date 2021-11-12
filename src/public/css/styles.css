@@ -141,9 +141,13 @@ table{
 
 /* FOOTER */
 footer {
-  color: white;
   color: rgba(0, 0, 0, 0.5);
+  font-family: 'Courier New', monospace;
   text-align: center;
+}
+#copyright {
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 /* SIGN PAGE */
@@ -155,6 +159,7 @@ footer {
   font-family: 'Montserrat', sans-serif;
 }
 .form-signin .form-control {
+  color: white;
   position: relative;
   box-sizing: border-box;
   height: auto;
