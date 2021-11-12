@@ -6,7 +6,7 @@ exports.createList = (listName) => {
 		const newList = new List({
 			name: listName,
 			items: new Array(),
-		})
+		});
 
 		return newList;
 

@@ -13,13 +13,13 @@ router.get('/login', (req, res) => {
   });
 });
 router.post('/login',
-    passport.authenticate(
-      'local',
-      {
-        successRedirect: '/',
-        failureRedirect: 'login',
-      }
-    )
+  passport.authenticate(
+    'local',
+    {
+      successRedirect: '/',
+      failureRedirect: 'login',
+    }
+  )
 );
 
 router.get('/sign-up', (req, res) => {
@@ -38,14 +38,14 @@ router.get('/auth/google',
     { scope:['profile'] }
   )
 );
-router.get('/auth/google/home', 
-  passport.authenticate(
-    'google',
-    {
-      successRedirect: '/',
-      failureRedirect: '/login',
-    }
-  )
+router.get('/auth/google/home',
+	passport.authenticate(
+		'google',
+		{
+			successRedirect: '/',
+			failureRedirect: '/login',
+		}
+	)
 );
 
 module.exports = router;
