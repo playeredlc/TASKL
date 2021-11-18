@@ -2,6 +2,7 @@ const userService = require('../services/user.service');
 const listService = require('../services/list.service');
 const passport = require('passport');
 const date = require('../utils/date');
+const url = require('url');
 
 exports.getById = async (req, res) => {
   try {
@@ -26,9 +27,25 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.localLogin = (req, res) => {
-  res.redirect
-}
+exports.login = async (req, res, next) => {
+  try {
+    
+    const authentication = await passport.authenticate('local', (err, user, info) => {
+      if(err) { return next(err) }
+      if(!user) { return res.redirect('/login'); }
+  
+      req.login(user, (err) => {
+        if(err) { return next(err) };
+        return res.redirect('/');
+      });
+    });
+
+    authentication(req, res, next);
+
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
 
 exports.logout = (req, res) => {
   try {

@@ -12,15 +12,7 @@ router.get('/login', (req, res) => {
     date: date.getDate()
   });
 });
-router.post('/login',
-  passport.authenticate(
-    'local',
-    {
-      successRedirect: '/',
-      failureRedirect: 'login',
-    }
-  )
-);
+router.post('/login', userController.login);
 
 router.get('/sign-up', (req, res) => {
   res.render('sign-up', {
