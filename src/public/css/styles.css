@@ -222,6 +222,16 @@ footer {
   color: #B1B1B1;
 }
 
+/* ERROR PAGE */
+.error-box {
+  border: solid rgb(128, 255, 219, 0.3) 3px;
+  padding: 2%;
+  border-radius: 8px;
+  background-color: rgb(255, 0, 0, 0.1);
+  width: 75%;
+  margin: 5% auto;
+}
+
 /* tablets */
 @media only screen and (min-width: 768px) {
   .lists {
@@ -231,6 +241,9 @@ footer {
   }
   .box {
     margin: 50px 0;
+  }
+  .error-box{
+    width: 50%;
   }
 }
 

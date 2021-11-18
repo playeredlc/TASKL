@@ -32,7 +32,11 @@ exports.login = async (req, res, next) => {
     
     const authentication = await passport.authenticate('local', (err, user, info) => {
       if(err) { return next(err) }
-      if(!user) { return res.redirect('/login'); }
+      if(!user) {
+        req.session.returnPath = req.path;
+        req.session.errMessage = info.message;
+        return res.redirect('/error');
+      }
   
       req.login(user, (err) => {
         if(err) { return next(err) };

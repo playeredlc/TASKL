@@ -17,4 +17,14 @@ router.get('/get-started', (req, res) => {
   });
 });
 
+router.get('/error', (req, res) => {
+  const params = {
+    auth: req.isAuthenticated(),
+    date: date.getDate(),
+    errMessage: req.session.errMessage || 'An unexpected error occurred.',
+    returnPath: req.session.returnPath || '/',
+  }
+  res.render('error', params);
+});
+
 module.exports = router;

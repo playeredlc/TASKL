@@ -1,0 +1,15 @@
+<%- include("header"); -%>
+
+<div class="error-box">
+  Ops :(
+  <hr>
+  <p>
+    <%= errMessage %> </br>
+    Please, try again.
+    </br></br>
+    <a class="btn btn-sm btn-light" href="<%= returnPath %>" role="button">Back</a>
+  </p>
+  <hr>
+</div>
+
+<%- include("footer"); -%>
