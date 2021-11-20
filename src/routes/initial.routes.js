@@ -1,4 +1,5 @@
 const router = require('express-promise-router')();
+const errorHandler = require('../middlewares/errorHandler');
 const date = require('../utils/date');
 
 router.get('/', (req, res) => {

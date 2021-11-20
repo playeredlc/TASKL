@@ -4,7 +4,7 @@ const passport = require('passport');
 const date = require('../utils/date');
 const url = require('url');
 
-exports.getById = async (req, res) => {
+exports.getById = async (req, res, next) => {
   try {
     const user = await userService.findUser(req.user._id);
 
@@ -23,7 +23,7 @@ exports.getById = async (req, res) => {
       });
     }
   } catch (err) {
-    throw new Error(err.message);
+    next(err);
   }
 };
 
@@ -33,9 +33,7 @@ exports.login = async (req, res, next) => {
     const authentication = await passport.authenticate('local', (err, user, info) => {
       if(err) { return next(err) }
       if(!user) {
-        req.session.returnPath = req.path;
-        req.session.errMessage = info.message;
-        return res.redirect('/error');
+        return next(new Error(info.message));
       }
   
       req.login(user, (err) => {
@@ -44,23 +42,25 @@ exports.login = async (req, res, next) => {
       });
     });
 
+    // throw new Error('Dummy sync error');
     authentication(req, res, next);
 
   } catch (err) {
-    throw new Error(err.message);
+    console.log('CAUGTH!!');
+    next(err);
   }
 };
 
-exports.logout = (req, res) => {
+exports.logout = (req, res, next) => {
   try {
     req.logout();
     res.redirect('/');
   } catch (err) {
-    throw new Error(err.message);
+    next(err);
   }
 };
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   try{
 		await userService.createUser(req.body.username, req.body.password);
 		
@@ -69,6 +69,6 @@ exports.register = async (req, res) => {
 		});
 	
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };

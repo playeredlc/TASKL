@@ -1,7 +1,13 @@
 require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
+
+const initialRoute = require('./routes/initial.routes');
+const listRoute = require('./routes/list.routes');
+const userRoute = require('./routes/user.routes');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 const config = require('./config/config');
@@ -13,7 +19,7 @@ app.set('views', __dirname + '/views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ type: 'application/vnd.api+json' }));
 
-// mongodb connection
+//mongodb connection
 config.database.connection();
 
 //express-session config
@@ -27,11 +33,16 @@ config.passport.local();
 config.passport.google();
 
 //routes in use
-const initialRoute = require('./routes/initial.routes');
-const listRoute = require('./routes/list.routes');
-const userRoute = require('./routes/user.routes');
 app.use(initialRoute);
 app.use(listRoute);
 app.use(userRoute);
+
+app.all('*', (req, res, next) => {
+  res.status(404);
+  next(new Error('Page not found!')) 
+});
+
+//middleware
+app.use(errorHandler);
 
 module.exports = app;

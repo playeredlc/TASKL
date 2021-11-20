@@ -2,7 +2,7 @@ const userService = require('../services/user.service');
 const listService = require('../services/list.service');
 const date = require('../utils/date');
 
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
 	try {
 		const userId = req.user._id;
 		const listName = req.body.listName;
@@ -12,11 +12,11 @@ exports.create = async (req, res) => {
 		res.redirect('/list/' + newListId);
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };
 
-exports.add = async (req, res) => {
+exports.add = async (req, res, next) => {
 	try {
 		const newItem = req.body.newItem;
 		const listId = req.body.listID;
@@ -27,11 +27,11 @@ exports.add = async (req, res) => {
 		res.redirect('/list/' + listId);
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };
 
-exports.delete = async (req, res) => {
+exports.delete = async (req, res, next) => {
 	try {
 		const itemIndex = req.body.itemIndex;
 		const listId = req.body.listID;
@@ -42,11 +42,11 @@ exports.delete = async (req, res) => {
 		res.redirect('/list/' + listId);
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };
 
-exports.display = async (req, res) => {
+exports.display = async (req, res, next) => {
 	try {
 		const user = await userService.findUser(req.user._id);
 		const listIndex = await listService.getListIndex(user._id, req.params.listId)
@@ -60,28 +60,28 @@ exports.display = async (req, res) => {
 		});
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };
 
-exports.destroy = async (req, res) => {
+exports.destroy = async (req, res, next) => {
 	try {
 		await listService.deleteList(req.user._id, req.params.listId);
 		
 		res.redirect('/home');
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	}
 };
 
-exports.rename = async (req, res) => {
+exports.rename = async (req, res, next) => {
 	try {
 		await listService.renameList(req.user._id, req.params.listId, req.body.newListName);
 		
 		res.redirect('/list/'+req.params.listId);
 
 	} catch (err) {
-		throw new Error(err.message);
+		next(err);
 	};
 };

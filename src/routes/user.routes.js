@@ -3,6 +3,7 @@ const userController = require('../controllers/user.controller');
 const date = require('../utils/date');
 const passport = require('passport');
 const isAuth = require('../middlewares/isAuth');
+const errorHandler = require('../middlewares/errorHandler');
 
 router.get('/home', isAuth, userController.getById);
 
