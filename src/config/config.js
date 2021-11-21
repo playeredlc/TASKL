@@ -28,8 +28,7 @@ config.passport = {
 	googleStrategy: {
 		clientID: process.env.GOOGLE_CLIENT_ID,
 		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-		callbackURL: process.env.PRODUCTION_DOMAIN + "/auth/google/home",
-		// callbackURL: "http://localhost:3000/auth/google/home"
+		callbackURL: process.env.HOST_DOMAIN + "/auth/google/home",
 	},
 	
 	session: () => {
