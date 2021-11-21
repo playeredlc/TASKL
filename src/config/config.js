@@ -28,7 +28,7 @@ config.passport = {
 	googleStrategy: {
 		clientID: process.env.GOOGLE_CLIENT_ID,
 		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-		callbackURL: "https://glacial-garden-88459.herokuapp.com/auth/google/home",
+		callbackURL: process.env.PRODUCTION_DOMAIN + "/auth/google/home",
 		// callbackURL: "http://localhost:3000/auth/google/home"
 	},
 	

@@ -39,7 +39,7 @@ app.use(userRoute);
 
 app.all('*', (req, res, next) => {
   res.status(404);
-  next(new Error('Page not found!')) 
+  next(new Error('Page not found.'));
 });
 
 //middleware
