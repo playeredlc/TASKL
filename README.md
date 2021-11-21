@@ -11,7 +11,7 @@
 
 Check online: [usetaskl.herokuapp.com](https://usetaskl.herokuapp.com)
 
-[About]()&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Features]()&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Technologies]()&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to run]()&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Author]()
+[About](#about-this-project)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Features](#features)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Tech](#technologies)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to run](#running-locally)&nbsp;&nbsp;&nbsp;
 
 </div>
 
