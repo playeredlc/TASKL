@@ -13,7 +13,7 @@ exports.findUser = async (userId) => {
 	}
 };
 
-exports.findByUserame = async (username) => {
+exports.findByUsername = async (username) => {
 	try {
 		const user = await User.findOne({ username: username });
 
